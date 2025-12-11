@@ -1,26 +1,35 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  color-scheme: light;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  @apply bg-slate-50 text-slate-900 antialiased;
+}
+
+a {
+  @apply text-blue-600 transition-colors hover:text-blue-700;
+}
+
+.card-grid {
+  @apply grid gap-4 md:gap-6;
+}
+
+.card-surface {
+  @apply rounded-2xl border border-slate-200 bg-white shadow-sm;
+}
+
+.badge {
+  @apply inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold;
+}
+
+.mirror-card {
+  /* Mirror/reflection effect (best in WebKit; graceful elsewhere) */
+  -webkit-box-reflect: below 14px
+    linear-gradient(
+      transparent 0%,
+      rgba(255, 255, 255, 0.3) 35%,
+      transparent 75%
+    );
 }
