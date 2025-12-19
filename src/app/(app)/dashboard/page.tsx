@@ -244,7 +244,7 @@ export default function DashboardPage() {
                     </div>,
                     <div key="status">
                       <span className="badge bg-emerald-50 text-emerald-700">
-                        {member.isActive ? 'Active' : 'Inactive'}
+                        {member.isActive ? 'Active' : 'Deactive'}
                       </span>
                     </div>,
                   ]}

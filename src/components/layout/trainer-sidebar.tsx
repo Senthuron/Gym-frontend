@@ -6,9 +6,12 @@ import { cn } from "@/lib/utils";
 
 const nav = [
   { href: "/trainer/dashboard", label: "Dashboard" },
+  { href: "/trainer/diet-plans", label: "Diet Plans" },
+  { href: "/trainer/workout-plans", label: "Workout Plans" },
   { href: "/trainer/classes", label: "My Classes" },
   { href: "/trainer/attendance", label: "Attendance" },
   { href: "/trainer/members", label: "Members" },
+  { href: "/trainer/feedback", label: "Feedback" },
   { href: "/trainer/profile", label: "Profile" },
 ];
 
@@ -67,14 +70,14 @@ export function TrainerSidebar({
                 className={cn(
                   "flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition",
                   active
-                    ? "bg-slate-900 text-white shadow-sm"
-                    : "text-slate-700 hover:bg-slate-100"
+                    ? "bg-emerald-50 text-emerald-600 shadow-sm"
+                    : "text-slate-600 hover:bg-slate-50"
                 )}
               >
                 <span
                   className={cn(
                     "grid h-8 w-8 place-items-center rounded-lg text-sm font-bold",
-                    active ? "bg-white/20" : "bg-slate-100 text-slate-500"
+                    active ? "bg-emerald-100 text-emerald-600" : "bg-slate-100 text-slate-500"
                   )}
                   aria-hidden
                 >

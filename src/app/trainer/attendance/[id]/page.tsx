@@ -2,7 +2,6 @@
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { TableRow } from "@/components/ui/table-row";
 import {
   trainerAttendance,
   trainerClasses,
@@ -90,47 +89,91 @@ export default function TrainerAttendanceDetail() {
         </div>
       ) : null}
 
-      <Card>
-        <div className="space-y-2">
-          <TableRow
-            header
-            cells={["Member", "Phone", "Status", "Action"]}
-            className="grid-cols-[1.3fr,1fr,0.8fr,0.8fr]"
-          />
+      <Card className="overflow-hidden border border-slate-200 shadow-sm">
+        {/* DESKTOP TABLE VIEW */}
+        <div className="hidden md:block overflow-x-auto">
+          <table className="min-w-full table-auto">
+            <thead className="bg-slate-100 border-b border-slate-200">
+              <tr className="text-left text-sm text-slate-600">
+                <th className="px-4 py-3 font-semibold">Member</th>
+                <th className="px-4 py-3 font-semibold">Phone</th>
+                <th className="px-4 py-3 font-semibold">Status</th>
+                <th className="px-4 py-3 font-semibold text-right">Action</th>
+              </tr>
+            </thead>
+
+            <tbody className="divide-y divide-slate-200">
+              {members.map((member) => {
+                const status = statuses[member.id] ?? "absent";
+                const isPresent = status === "present";
+                return (
+                  <tr key={member.id} className="hover:bg-slate-50 text-sm text-slate-700">
+                    <td className="px-4 py-3">
+                      <p className="font-semibold text-slate-900">{member.name}</p>
+                      <p className="text-xs text-slate-500">ID: {member.id}</p>
+                    </td>
+                    <td className="px-4 py-3">{member.phone}</td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${isPresent
+                          ? "bg-emerald-50 text-emerald-700"
+                          : "bg-slate-100 text-slate-700"
+                          }`}
+                      >
+                        {isPresent ? "Present" : "Absent"}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <Button
+                        variant={isPresent ? "secondary" : "ghost"}
+                        size="sm"
+                        onClick={() => toggle(member.id)}
+                      >
+                        {isPresent ? "Mark absent" : "Mark present"}
+                      </Button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+
+        {/* MOBILE VIEW */}
+        <div className="md:hidden divide-y divide-slate-200">
           {members.map((member) => {
             const status = statuses[member.id] ?? "absent";
             const isPresent = status === "present";
             return (
-              <TableRow
-                key={member.id}
-                cells={[
-                  <div key="name">
-                    <p className="font-semibold text-slate-900">{member.name}</p>
+              <div key={member.id} className="p-4 space-y-3">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h3 className="font-bold text-slate-900">{member.name}</h3>
                     <p className="text-xs text-slate-500">ID: {member.id}</p>
-                  </div>,
-                  <span key="phone" className="text-sm text-slate-600">
-                    {member.phone}
-                  </span>,
+                  </div>
                   <span
-                    key="status"
-                    className={`badge ${isPresent
-                        ? "bg-emerald-50 text-emerald-700"
-                        : "bg-slate-100 text-slate-700"
+                    className={`inline-flex items-center rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-wider ${isPresent
+                      ? "bg-emerald-50 text-emerald-700"
+                      : "bg-slate-100 text-slate-700"
                       }`}
                   >
                     {isPresent ? "Present" : "Absent"}
-                  </span>,
+                  </span>
+                </div>
+                <div className="text-xs text-slate-600">
+                  Phone: {member.phone}
+                </div>
+                <div className="pt-1">
                   <Button
-                    key="toggle"
                     variant={isPresent ? "secondary" : "ghost"}
                     size="sm"
+                    className="w-full border border-slate-200"
                     onClick={() => toggle(member.id)}
                   >
                     {isPresent ? "Mark absent" : "Mark present"}
-                  </Button>,
-                ]}
-                className="grid-cols-[1.3fr,1fr,0.8fr,0.8fr]"
-              />
+                  </Button>
+                </div>
+              </div>
             );
           })}
         </div>

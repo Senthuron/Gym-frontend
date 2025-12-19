@@ -3,7 +3,6 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { TableRow } from "@/components/ui/table-row";
 import { sessionsApi, Session, getUser } from "@/lib/api";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
@@ -172,43 +171,109 @@ export default function TrainerClassesPage() {
         </div>
       )}
 
-      <Card>
-        <div className="space-y-2">
-          <TableRow
-            header
-            cells={["Class", "Date & time", "Capacity", "Actions"]}
-            className="grid-cols-[1.5fr,1.5fr,0.8fr,1fr]"
-          />
+      <Card className="overflow-hidden border border-slate-200 shadow-sm">
+        {/* DESKTOP TABLE VIEW */}
+        <div className="hidden md:block overflow-x-auto">
+          <table className="min-w-full table-auto">
+            <thead className="bg-slate-100 border-b border-slate-200">
+              <tr className="text-left text-sm text-slate-600">
+                <th className="px-4 py-3 font-semibold">Class</th>
+                <th className="px-4 py-3 font-semibold">Date & Time</th>
+                <th className="px-4 py-3 font-semibold text-center">Capacity</th>
+                <th className="px-4 py-3 font-semibold text-right">Actions</th>
+              </tr>
+            </thead>
+
+            <tbody className="divide-y divide-slate-200">
+              {loading ? (
+                <tr>
+                  <td colSpan={4} className="px-4 py-8 text-center text-slate-500">
+                    Loading sessions...
+                  </td>
+                </tr>
+              ) : filtered.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="px-4 py-8 text-center text-slate-500">
+                    No sessions found.
+                  </td>
+                </tr>
+              ) : (
+                filtered.map((cls) => (
+                  <tr key={cls._id} className="hover:bg-slate-50 text-sm text-slate-700">
+                    <td className="px-4 py-3">
+                      <p className="font-semibold text-slate-900">{cls.name}</p>
+                      <p className="text-xs text-slate-500">{cls.location || 'N/A'}</p>
+                    </td>
+                    <td className="px-4 py-3">
+                      {new Date(cls.date).toLocaleDateString()} · {cls.startTime}
+                    </td>
+                    <td className="px-4 py-3 text-center font-semibold">
+                      {cls.capacity}
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center justify-end gap-2">
+                        <Button variant="ghost" size="sm" onClick={() => startEdit(cls)}>
+                          Edit
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          onClick={() => handleDelete(cls._id)}
+                        >
+                          Delete
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* MOBILE VIEW */}
+        <div className="md:hidden divide-y divide-slate-200">
           {loading ? (
-            <div className="p-4 text-center text-sm text-slate-500">Loading sessions...</div>
+            <div className="p-8 text-center text-slate-500">Loading...</div>
           ) : filtered.length === 0 ? (
-            <div className="p-4 text-center text-sm text-slate-500">No sessions found.</div>
+            <div className="p-8 text-center text-slate-500">No sessions found.</div>
           ) : (
             filtered.map((cls) => (
-              <TableRow
-                key={cls._id}
-                cells={[
-                  <div key="title">
-                    <p className="font-semibold text-slate-900">{cls.name}</p>
+              <div key={cls._id} className="p-4 space-y-3">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h3 className="font-bold text-slate-900">{cls.name}</h3>
                     <p className="text-xs text-slate-500">{cls.location || 'N/A'}</p>
-                  </div>,
-                  <span key="time" className="text-sm text-slate-600">
+                  </div>
+                  <span className="px-2 py-1 rounded-lg bg-slate-100 text-[10px] font-bold text-slate-600">
+                    Cap: {cls.capacity}
+                  </span>
+                </div>
+                <div className="flex items-center text-xs text-slate-600">
+                  <span className="font-medium">
                     {new Date(cls.date).toLocaleDateString()} · {cls.startTime}
-                  </span>,
-                  <span key="cap" className="text-sm font-semibold">
-                    {cls.capacity}
-                  </span>,
-                  <div key="actions" className="flex items-center gap-2">
-                    <Button variant="ghost" size="sm" onClick={() => startEdit(cls)}>
-                      Edit
-                    </Button>
-                    <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700 hover:bg-red-50" onClick={() => handleDelete(cls._id)}>
-                      Delete
-                    </Button>
-                  </div>,
-                ]}
-                className="grid-cols-[1.5fr,1.5fr,0.8fr,1fr]"
-              />
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 pt-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="flex-1 border border-slate-200"
+                    onClick={() => startEdit(cls)}
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="flex-1 border border-red-100 text-red-600 hover:bg-red-50"
+                    onClick={() => handleDelete(cls._id)}
+                  >
+                    Delete
+                  </Button>
+                </div>
+              </div>
             ))
           )}
         </div>

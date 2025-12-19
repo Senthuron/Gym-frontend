@@ -121,7 +121,7 @@ export default function AttendancePage() {
   const activeParticipants = useMemo(
     () =>
       participants.filter((p) => {
-        return p.status?.toLowerCase() !== "inactive" && p.isActive !== false;
+        return p.status?.toLowerCase() !== "deactive" && p.isActive !== false;
       }),
     [participants]
   );

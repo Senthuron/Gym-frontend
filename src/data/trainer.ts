@@ -25,7 +25,7 @@ export type TrainerMember = {
   phone: string;
   email?: string;
   plan?: "Basic" | "Premium" | "Plus";
-  activityLevel?: "Active" | "Inactive";
+  activityLevel?: "Active" | "Deactive";
   lastCheckIn?: string;
   avatar?: string;
   age: number;
@@ -186,7 +186,7 @@ export const trainerMembers: TrainerMember[] = [
     phone: "+1 555-211-7344",
     email: "brooklyn.james@example.com",
     plan: "Premium",
-    activityLevel: "Inactive",
+    activityLevel: "Deactive",
     lastCheckIn: "2024-12-28",
     avatar:
       "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80",
@@ -248,7 +248,7 @@ export const trainerMembers: TrainerMember[] = [
     phone: "+1 555-712-2210",
     email: "ava.morgan@example.com",
     plan: "Basic",
-    activityLevel: "Inactive",
+    activityLevel: "Deactive",
     lastCheckIn: "2025-01-02",
     age: 26,
     classes: ["TC-203", "TC-204"],

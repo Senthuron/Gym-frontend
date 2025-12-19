@@ -1,7 +1,6 @@
 "use client";
 
 import { Card } from "@/components/ui/card";
-import { TableRow } from "@/components/ui/table-row";
 import { trainerClasses } from "@/data/trainer";
 import Link from "next/link";
 
@@ -15,37 +14,73 @@ export default function TrainerAttendanceList() {
         </h1>
       </div>
 
-      <Card>
-        <div className="space-y-2">
-          <TableRow
-            header
-            cells={["Class", "Date & time", "Enrolled", ""]}
-            className="grid-cols-[1.5fr,1.2fr,0.8fr,0.7fr]"
-          />
+      <Card className="overflow-hidden border border-slate-200 shadow-sm">
+        {/* DESKTOP TABLE VIEW */}
+        <div className="hidden md:block overflow-x-auto">
+          <table className="min-w-full table-auto">
+            <thead className="bg-slate-100 border-b border-slate-200">
+              <tr className="text-left text-sm text-slate-600">
+                <th className="px-4 py-3 font-semibold">Class</th>
+                <th className="px-4 py-3 font-semibold">Date & Time</th>
+                <th className="px-4 py-3 font-semibold">Enrolled</th>
+                <th className="px-4 py-3 font-semibold text-right">Action</th>
+              </tr>
+            </thead>
+
+            <tbody className="divide-y divide-slate-200">
+              {trainerClasses.map((cls) => (
+                <tr key={cls.id} className="hover:bg-slate-50 text-sm text-slate-700">
+                  <td className="px-4 py-3">
+                    <p className="font-semibold text-slate-900">{cls.title}</p>
+                    <p className="text-xs text-slate-500">{cls.location}</p>
+                  </td>
+                  <td className="px-4 py-3">
+                    {cls.date} · {cls.time}
+                  </td>
+                  <td className="px-4 py-3">
+                    {cls.enrolled}/{cls.capacity}
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <Link
+                      href={`/trainer/attendance/${cls.id}`}
+                      className="text-sm font-semibold text-blue-700 hover:text-blue-800"
+                    >
+                      Mark / Edit
+                    </Link>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* MOBILE VIEW */}
+        <div className="md:hidden divide-y divide-slate-200">
           {trainerClasses.map((cls) => (
-            <TableRow
-              key={cls.id}
-              cells={[
-                <div key="title">
-                  <p className="font-semibold text-slate-900">{cls.title}</p>
+            <div key={cls.id} className="p-4 space-y-3">
+              <div className="flex items-start justify-between">
+                <div>
+                  <h3 className="font-bold text-slate-900">{cls.title}</h3>
                   <p className="text-xs text-slate-500">{cls.location}</p>
-                </div>,
-                <span key="time" className="text-sm text-slate-600">
-                  {cls.date} · {cls.time}
-                </span>,
-                <span key="enrolled" className="text-sm text-slate-600">
+                </div>
+                <span className="px-2 py-1 rounded-lg bg-slate-100 text-[10px] font-bold text-slate-600">
                   {cls.enrolled}/{cls.capacity}
-                </span>,
+                </span>
+              </div>
+              <div className="flex items-center text-xs text-slate-600">
+                <span className="font-medium">
+                  {cls.date} · {cls.time}
+                </span>
+              </div>
+              <div className="pt-1">
                 <Link
-                  key="link"
                   href={`/trainer/attendance/${cls.id}`}
-                  className="text-sm font-semibold text-blue-700"
+                  className="block w-full text-center py-2 text-sm font-semibold text-blue-700 border border-blue-100 rounded-lg bg-blue-50 hover:bg-blue-100"
                 >
                   Mark / Edit
-                </Link>,
-              ]}
-              className="grid-cols-[1.5fr,1.2fr,0.8fr,0.7fr]"
-            />
+                </Link>
+              </div>
+            </div>
           ))}
         </div>
       </Card>

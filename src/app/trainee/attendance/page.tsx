@@ -1,22 +1,26 @@
 "use client";
 
-import { attendanceApi, authApi } from "@/lib/api";
+import { attendanceApi, authApi, feedbackApi } from "@/lib/api";
 import { formatDate } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import { TrendingUp, CheckCircle, XCircle, Calendar } from "lucide-react";
+import { FeedbackModal } from "@/components/feedback/FeedbackModal";
 
 export default function TraineeAttendanceOverview() {
   const [attendance, setAttendance] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [profile, setProfile] = useState<any>(null);
+  const [feedbackModal, setFeedbackModal] = useState<{ open: boolean; classId?: string; title: string }>({ open: false, title: "" });
+  const [submittedFeedbacks, setSubmittedFeedbacks] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [attendanceRes, profileRes] = await Promise.all([
+        const [attendanceRes, profileRes, feedbackRes] = await Promise.all([
           attendanceApi.getMemberHistory(),
-          authApi.getProfile()
+          authApi.getProfile(),
+          feedbackApi.getAll({ type: 'CLASS' })
         ]);
 
         if (attendanceRes.success && attendanceRes.data) {
@@ -25,6 +29,11 @@ export default function TraineeAttendanceOverview() {
 
         if (profileRes.success && profileRes.data) {
           setProfile(profileRes.data.memberDetails);
+        }
+
+        if (feedbackRes.success && feedbackRes.data) {
+          const submitted = new Set(feedbackRes.data.map((f: any) => (f.classId as any)?._id || f.classId));
+          setSubmittedFeedbacks(submitted as Set<string>);
         }
       } catch (err) {
         setError("Failed to load attendance data");
@@ -37,11 +46,23 @@ export default function TraineeAttendanceOverview() {
     fetchData();
   }, []);
 
+  const refreshFeedback = async () => {
+    try {
+      const feedbackRes = await feedbackApi.getAll({ type: 'CLASS' });
+      if (feedbackRes.success && feedbackRes.data) {
+        const submitted = new Set(feedbackRes.data.map((f: any) => (f.classId as any)?._id || f.classId));
+        setSubmittedFeedbacks(submitted as Set<string>);
+      }
+    } catch (err) {
+      console.error("Error refreshing feedback:", err);
+    }
+  };
+
   const totalPresent = attendance.filter(
-    (h) => h.isPresent
+    (h: any) => h.isPresent
   ).length;
   const totalAbsent = attendance.filter(
-    (h) => !h.isPresent
+    (h: any) => !h.isPresent
   ).length;
 
   // Calculate percentage from history
@@ -145,7 +166,7 @@ export default function TraineeAttendanceOverview() {
               <p className="text-sm text-slate-500">Your attendance history will appear here.</p>
             </div>
           ) : (
-            attendance.map((item) => (
+            attendance.map((item: any) => (
               <div
                 key={item._id}
                 className="flex items-center justify-between p-4 hover:bg-slate-50 transition-colors"
@@ -166,18 +187,45 @@ export default function TraineeAttendanceOverview() {
                   </div>
                 </div>
 
-                <div className={`px-3 py-1 rounded-full text-xs font-medium ${item.isPresent
-                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-100'
-                  : 'bg-rose-50 text-rose-700 border border-rose-100'
-                  }`}>
-                  {item.isPresent ? 'Present' : 'Absent'}
+                <div className="flex items-center gap-3">
+                  <div className={`px-3 py-1 rounded-full text-xs font-medium ${item.isPresent
+                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-100'
+                    : 'bg-rose-50 text-rose-700 border border-rose-100'
+                    }`}>
+                    {item.isPresent ? 'Present' : 'Absent'}
+                  </div>
+
+                  {item.isPresent && (
+                    submittedFeedbacks.has((item.sessionId as any)?._id) ? (
+                      <span className="text-xs text-slate-400 font-medium italic">Feedback Given</span>
+                    ) : (
+                      <button
+                        onClick={() => setFeedbackModal({
+                          open: true,
+                          classId: (item.sessionId as any)?._id,
+                          title: `Rate Class: ${(item.sessionId as any)?.name}`
+                        })}
+                        className="text-xs font-semibold text-emerald-600 hover:text-emerald-700 underline underline-offset-4"
+                      >
+                        Give Feedback
+                      </button>
+                    )
+                  )}
                 </div>
               </div>
             ))
           )}
         </div>
       </div>
+
+      <FeedbackModal
+        open={feedbackModal.open}
+        onClose={() => setFeedbackModal({ ...feedbackModal, open: false })}
+        type="CLASS"
+        classId={feedbackModal.classId}
+        title={feedbackModal.title}
+        onSuccess={refreshFeedback}
+      />
     </div>
   );
 }
-

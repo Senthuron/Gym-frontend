@@ -18,6 +18,7 @@ export default function TraineeProfileEditPage() {
     email: "",
     age: "",
     weight: "",
+    gender: "",
     password: "",
   });
   const [error, setError] = useState<string | null>(null);
@@ -42,6 +43,7 @@ export default function TraineeProfileEditPage() {
             email: response.data.email || "",
             age: response.data.age ? response.data.age.toString() : "",
             weight: response.data.weight ? response.data.weight.toString() : "",
+            gender: response.data.gender || "",
             password: "",
           });
         } else {
@@ -75,6 +77,11 @@ export default function TraineeProfileEditPage() {
       return;
     }
 
+    if (!form.gender) {
+      setError("Gender is required.");
+      return;
+    }
+
     setError(null);
     setSaving(true);
 
@@ -91,6 +98,7 @@ export default function TraineeProfileEditPage() {
         phone: form.phone,
         age: form.age ? parseInt(form.age) : undefined,
         weight: form.weight ? parseFloat(form.weight) : undefined,
+        gender: form.gender,
       };
 
       const response = await membersApi.updateProfile(updateData);
@@ -200,6 +208,22 @@ export default function TraineeProfileEditPage() {
               max="1000"
               step="0.1"
             />
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-slate-700 mb-2">
+              Gender <span className="text-red-500">*</span>
+            </label>
+            <select
+              value={form.gender}
+              onChange={(e) => setForm((f) => ({ ...f, gender: e.target.value }))}
+              className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+              required
+            >
+              <option value="" disabled>Select Gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Others">Others</option>
+            </select>
           </div>
           <Input
             label="Password"

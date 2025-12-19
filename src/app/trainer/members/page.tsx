@@ -285,7 +285,7 @@ export default function TrainerMembersPage() {
                     <td className="px-4 py-3">
                       <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${m.isActive !== false ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-600'
                         }`}>
-                        {m.isActive !== false ? "Active" : "Inactive"}
+                        {m.isActive !== false ? "Active" : "Deactive"}
                       </span>
                     </td>
 
@@ -346,7 +346,7 @@ export default function TrainerMembersPage() {
                   <span>{m.plan ?? "—"}</span>
 
                   <span className="font-semibold text-slate-500">Status</span>
-                  <span>{m.isActive !== false ? "Active" : "Inactive"}</span>
+                  <span>{m.isActive !== false ? "Active" : "Deactive"}</span>
 
                   <span className="font-semibold text-slate-500">Start date</span>
                   <span>{m.membershipStartDate ? formatDate(m.membershipStartDate) : "—"}</span>

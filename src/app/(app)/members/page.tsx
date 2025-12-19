@@ -343,7 +343,7 @@
 //           <div className="grid gap-3 sm:grid-cols-2">
 //             <Input
 //               label="Activity level"
-//               placeholder="Active / Inactive"
+//               placeholder="Active / Deactivate"
 //               value={form.activityLevel}
 //               onChange={(e) =>
 //                 setForm((f) => ({
@@ -502,7 +502,7 @@ const statusColors: Record<string, string> = {
   // Frozen: "bg-amber-50 text-amber-700",
   Pending: "bg-slate-100 text-slate-700",
   active: "bg-emerald-50 text-emerald-700",
-  inactive: "bg-amber-50 text-amber-700",
+  Deactive: "bg-amber-50 text-amber-700",
   pending: "bg-slate-100 text-slate-700",
 };
 
@@ -545,6 +545,7 @@ export default function MembersPage() {
     difficultyLevel: "Beginner",
     age: "",
     weight: "",
+    gender: "",
   });
 
   // Auto-calculate next billing date when start date changes (30 days from start)
@@ -568,6 +569,7 @@ export default function MembersPage() {
       try {
         setLoading(true);
         const statusFilter = status === "All" ? undefined : status.toLowerCase();
+        console.log('Frontend loading members with status filter:', statusFilter);
         // Map frontend role labels to backend role values
         const roleMap: Record<string, string> = {
           All: "",
@@ -581,6 +583,8 @@ export default function MembersPage() {
             : roleFilter === "All"
               ? undefined
               : roleMap[roleFilter];
+
+        console.log('Frontend role filter:', roleFilterParam);
 
         const response = await membersApi.getAll(
           query || undefined,
@@ -612,6 +616,7 @@ export default function MembersPage() {
       role: "member" as "admin" | "trainer" | "member",
       plan: "Standard",
       status: "active",
+      gender: "",
       membershipStartDate: new Date().toISOString().slice(0, 10),
       membershipEndDate: new Date().toISOString().slice(0, 10),
       nextBillingDate: "",
@@ -664,6 +669,7 @@ export default function MembersPage() {
           class: form.className,
           classType: form.classType,
           difficultyLevel: form.difficultyLevel,
+          gender: form.gender,
         });
         if (response.success) {
           // Reload members
@@ -688,6 +694,7 @@ export default function MembersPage() {
           difficultyLevel: form.difficultyLevel,
           age: form.age ? parseInt(form.age) : undefined,
           weight: form.weight ? parseFloat(form.weight) : undefined,
+          gender: form.gender,
           // nextBillingDate will be auto-calculated on backend (30 days from start)
         });
         if (response.success) {
@@ -730,6 +737,7 @@ export default function MembersPage() {
       difficultyLevel: (member as any).difficultyLevel || "Beginner",
       age: member.age ? member.age.toString() : "",
       weight: member.weight ? member.weight.toString() : "",
+      gender: member.gender || "",
     });
     setOpenCreate(true);
   };
@@ -809,7 +817,7 @@ export default function MembersPage() {
             {activeTab === "members" && (
               <div className="flex gap-2">
                 <span className="text-xs text-slate-500 self-center">Status:</span>
-                {(["All", "Active", "Inactive", "Pending"] as const).map((item) => (
+                {(["All", "Active", "Deactive", "Pending"] as const).map((item) => (
                   <Button
                     key={item}
                     variant={status === item.toLowerCase() || (status === "" && item === "All") ? "primary" : "ghost"}
@@ -833,6 +841,7 @@ export default function MembersPage() {
                   <th className="p-3 text-left w-40">Name</th>
                   <th className="p-3 text-left w-48">Email</th>
                   <th className="p-3 text-left w-24">Role</th>
+                  <th className="p-3 text-left w-24">Gender</th>
                   <th className="p-3 text-left w-32">Number</th>
                   <th className="p-3 text-left w-28">Plan</th>
                   <th className="p-3 text-left w-28">Status</th>
@@ -870,12 +879,13 @@ export default function MembersPage() {
                           </span>
                         )}
                       </td>
+                      <td className="p-3 text-slate-600">{m.gender ?? "—"}</td>
                       <td className="p-3 text-slate-600">{m.phone ?? "—"}</td>
                       <td className="p-3 text-slate-600">{m.plan ?? "—"}</td>
                       <td className="p-3">
                         <div className="flex flex-col gap-1">
-                          <span className={`badge ${statusColors[m.status || (m.isActive ? 'active' : 'inactive')]}`}>
-                            {m.status ? (m.status.charAt(0).toUpperCase() + m.status.slice(1)) : (m.isActive ? 'Active' : 'Inactive')}
+                          <span className={`badge ${statusColors[m.status || (m.isActive ? 'active' : 'Deactive')]}`}>
+                            {m.status ? (m.status.charAt(0).toUpperCase() + m.status.slice(1)) : (m.isActive ? 'Active' : 'Deactive')}
                           </span>
                           {m.role === 'member' && m.membershipEndDate && isExpiringSoon(m.membershipEndDate) && (
                             <span className="badge bg-amber-50 text-amber-700 text-xs">Expiring in 7 days</span>
@@ -935,9 +945,10 @@ export default function MembersPage() {
                 <div className="grid grid-cols-2 text-xs gap-y-1 text-slate-600">
                   <LabelValue label="Email" value={m.email} />
                   <LabelValue label="Role" value={m.role ? roleLabels[m.role] || m.role : "—"} />
+                  <LabelValue label="Gender" value={m.gender ?? "—"} />
                   <LabelValue label="Phone" value={m.phone ?? "—"} />
                   <LabelValue label="Plan" value={m.plan ?? "—"} />
-                  <LabelValue label="Status" value={m.isActive ? 'Active' : 'Inactive'} />
+                  <LabelValue label="Status" value={m.isActive ? 'Active' : 'Deactive'} />
                   <LabelValue label="Start" value={m.membershipStartDate ? formatDate(new Date(m.membershipStartDate).toISOString().slice(0, 10)) : "—"} />
                   <div className="col-span-2">
                     <div className="flex items-center justify-between">
@@ -980,11 +991,12 @@ export default function MembersPage() {
             />
             <InfoRow label="Email" value={selected.email} />
             <InfoRow label="Phone" value={selected.phone ?? "—"} />
+            <InfoRow label="Gender" value={selected.gender ?? "—"} />
             <InfoRow label="Plan" value={selected.plan ?? "—"} />
             <InfoRow
               label="Status"
-              value={selected.isActive ? 'Active' : 'Inactive'}
-              badgeClass={statusColors[selected.status || (selected.isActive ? 'active' : 'inactive')]}
+              value={selected.isActive ? 'Active' : 'Deactive'}
+              badgeClass={statusColors[selected.status || (selected.isActive ? 'active' : 'deactive')]}
             />
             <InfoRow label="Start" value={selected.membershipStartDate ? formatDate(new Date(selected.membershipStartDate).toISOString().slice(0, 10)) : "—"} />
             <div className="flex items-center justify-between">
@@ -1070,6 +1082,22 @@ export default function MembersPage() {
               required={form.role !== 'admin'}
             />
 
+            <div>
+              <label className="block text-sm font-semibold text-slate-700 mb-2">
+                Gender
+              </label>
+              <select
+                value={form.gender}
+                onChange={(e) => setForm((f) => ({ ...f, gender: e.target.value }))}
+                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+              >
+                <option value="">Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Others">Others</option>
+              </select>
+            </div>
+
             {form.role === 'member' && (
               <>
                 <Input
@@ -1107,7 +1135,7 @@ export default function MembersPage() {
                     className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
                   >
                     <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
+                    <option value="Deactive">Deactive</option>
                     <option value="pending">Pending</option>
                   </select>
                 </div>

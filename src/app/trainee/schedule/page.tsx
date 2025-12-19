@@ -127,8 +127,8 @@ export default function TraineeSchedulePage() {
               {/* Status Badge */}
               <div className="absolute top-4 right-4 z-10">
                 <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${cls.status === "Scheduled"
-                  ? "bg-orange-200 text-slate-800"
-                  : "bg-green-200 text-slate-800"
+                  ? "bg-orange-200 text-orange-800"
+                  : "bg-green-200 text-green-800"
                   }`}>
                   {cls.status}
                 </span>
@@ -187,7 +187,7 @@ export default function TraineeSchedulePage() {
                 <div className="mt-auto pt-4 border-t border-slate-100">
                   <Link
                     href={`/trainee/schedule/${cls._id}`}
-                    className="flex items-center justify-center w-full py-2.5 px-4 bg-slate-900 text-white text-sm font-medium rounded-xl hover:bg-emerald-600 transition-colors"
+                    className="flex items-center justify-center w-full py-2.5 px-4 bg-slate-900 text-white text-sm font-medium rounded-xl hover:bg-blue-200 transition-colors"
                   >
                     View Details
                   </Link>

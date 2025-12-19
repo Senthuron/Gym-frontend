@@ -38,6 +38,69 @@ export interface Member {
   classType?: string;
   difficultyLevel?: string;
   daysUntilExpiration?: number;
+  gender?: string;
+  workoutPlan?: {
+    weeklySchedule: {
+      day: string;
+      exercises: {
+        name: string;
+        sets: string;
+        reps: string;
+        notes: string;
+      }[];
+    }[];
+    trainerNotes: string;
+  };
+  dietPlan?: {
+    dietChart: string;
+    mealTiming: {
+      meal: string;
+      time: string;
+      notes: string;
+    }[];
+    nutritionNotes: string;
+  };
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface DietPlan {
+  _id: string;
+  title: string;
+  type: 'WEIGHT_LOSS' | 'WEIGHT_GAIN' | 'MUSCLE_BUILD' | 'MAINTENANCE';
+  trainerId: string | { _id: string; name: string; email: string };
+  traineeId: string | { _id: string; name: string; email: string };
+  startDate: string;
+  endDate: string;
+  notes?: string;
+  meals: {
+    name: string;
+    description: string;
+    calories?: number;
+    nutritionNotes?: string;
+  }[];
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface WorkoutPlan {
+  _id: string;
+  title: string;
+  difficulty: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
+  trainerId: string | { _id: string; name: string; email: string };
+  traineeId: string | { _id: string; name: string; email: string };
+  startDate: string;
+  endDate: string;
+  workoutDays: {
+    dayName: string;
+    focus: string;
+    exercises: {
+      name: string;
+      sets: string;
+      reps: string;
+      restTime?: string;
+    }[];
+  }[];
   createdAt?: string;
   updatedAt?: string;
 }
@@ -55,6 +118,25 @@ export interface Session {
   updatedAt?: string;
 }
 
+export interface Employee {
+  _id: string;
+  employeeId: string;
+  name: string;
+  role: 'Trainer' | 'Reception' | 'Manager' | 'Cleaner';
+  phone: string;
+  email: string;
+  joiningDate: string;
+  salaryType: 'Monthly' | 'Per-class' | 'Per-hour';
+  baseSalary: number;
+  status: 'Active' | 'On Permission' | 'Resigned';
+  user?: string | { _id: string; name: string; email: string; role: string };
+  specialization?: string;
+  bio?: string;
+  experience?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export interface DashboardStats {
   activeMembersCount?: number;
   activeMembers?: number;
@@ -68,6 +150,35 @@ export interface DashboardStats {
   weeklyClasses?: number;
   totalAttendance?: number;
   revenueTrend?: { label: string; value: number }[];
+}
+
+export interface Feedback {
+  _id: string;
+  traineeId: string | { _id: string; name: string };
+  trainerId?: string | { _id: string; name: string };
+  classId?: string | { _id: string; name: string; date: string };
+  type: 'TRAINER' | 'CLASS';
+  rating: number;
+  comment?: string;
+  suggestion?: string;
+  status: 'ACTIVE' | 'HIDDEN';
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface FeedbackAnalytics {
+  trainerStats: {
+    _id: string;
+    name: string;
+    averageRating: number;
+    totalFeedback: number;
+  }[];
+  classStats: {
+    _id: string;
+    name: string;
+    averageRating: number;
+    totalFeedback: number;
+  }[];
 }
 
 // Get auth token from localStorage
@@ -165,7 +276,8 @@ export const authApi = {
     difficultyLevel?: string,
     role?: string,
     age?: number,
-    weight?: number
+    weight?: number,
+    gender?: string
   ): Promise<ApiResponse<LoginResponse>> => {
     return apiRequest<LoginResponse>('/auth/register', {
       method: 'POST',
@@ -183,7 +295,8 @@ export const authApi = {
         difficultyLevel,
         role,
         age,
-        weight
+        weight,
+        gender
       }),
     });
   },
@@ -244,6 +357,7 @@ export const membersApi = {
     phone?: string;
     age?: number;
     weight?: number;
+    gender?: string;
   }): Promise<ApiResponse<Member>> => {
     return apiRequest<Member>('/members/profile', {
       method: 'PUT',
@@ -266,6 +380,7 @@ export const membersApi = {
     difficultyLevel?: string;
     age?: number;
     weight?: number;
+    gender?: string;
   }): Promise<ApiResponse<Member>> => {
     return apiRequest<Member>('/members', {
       method: 'POST',
@@ -283,6 +398,20 @@ export const membersApi = {
   delete: async (id: string): Promise<ApiResponse<void>> => {
     return apiRequest<void>(`/members/${id}`, {
       method: 'DELETE',
+    });
+  },
+
+  updateWorkoutPlan: async (id: string, workoutPlan: any): Promise<ApiResponse<Member>> => {
+    return apiRequest<Member>(`/members/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({ workoutPlan }),
+    });
+  },
+
+  updateDietPlan: async (id: string, dietPlan: any): Promise<ApiResponse<Member>> => {
+    return apiRequest<Member>(`/members/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({ dietPlan }),
     });
   },
 };
@@ -377,3 +506,161 @@ export const trainersApi = {
   },
 };
 
+// Employees API
+export const employeesApi = {
+  getAll: async (): Promise<ApiResponse<Employee[]>> => {
+    return apiRequest<Employee[]>('/employees');
+  },
+
+  getById: async (id: string): Promise<ApiResponse<Employee>> => {
+    return apiRequest<Employee>(`/employees/${id}`);
+  },
+
+  create: async (employeeData: Partial<Employee>): Promise<ApiResponse<Employee>> => {
+    return apiRequest<Employee>('/employees', {
+      method: 'POST',
+      body: JSON.stringify(employeeData),
+    });
+  },
+
+  update: async (id: string, employeeData: Partial<Employee>): Promise<ApiResponse<Employee>> => {
+    return apiRequest<Employee>(`/employees/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(employeeData),
+    });
+  },
+
+  delete: async (id: string): Promise<ApiResponse<void>> => {
+    return apiRequest<void>(`/employees/${id}`, {
+      method: 'DELETE',
+    });
+  },
+};
+
+export interface EmployeeAttendance {
+  _id: string;
+  employee: string | { _id: string; name: string; employeeId: string; role: string };
+  date: string;
+  status: 'Present' | 'On Permission' | 'Absent';
+  note?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+
+// Employee Attendance API
+export const employeeAttendanceApi = {
+  mark: async (date: string, attendanceData: { employeeId: string; status: string; note?: string }[]): Promise<ApiResponse<EmployeeAttendance[]>> => {
+    return apiRequest<EmployeeAttendance[]>('/employee-attendance', {
+      method: 'POST',
+      body: JSON.stringify({ date, attendanceData }),
+    });
+  },
+
+  getByDate: async (date: string): Promise<ApiResponse<EmployeeAttendance[]>> => {
+    return apiRequest<EmployeeAttendance[]>(`/employee-attendance/date/${date}`);
+  },
+
+  getEmployeeHistory: async (employeeId: string): Promise<ApiResponse<EmployeeAttendance[]>> => {
+    return apiRequest<EmployeeAttendance[]>(`/employee-attendance/employee/${employeeId}`);
+  },
+};
+
+// Diet Plans API
+export const dietPlansApi = {
+  getAll: async (): Promise<ApiResponse<DietPlan[]>> => {
+    return apiRequest<DietPlan[]>('/diet-plans');
+  },
+  getById: async (id: string): Promise<ApiResponse<DietPlan>> => {
+    return apiRequest<DietPlan>(`/diet-plans/${id}`);
+  },
+  create: async (data: Partial<DietPlan>): Promise<ApiResponse<DietPlan>> => {
+    return apiRequest<DietPlan>('/diet-plans', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+  update: async (id: string, data: Partial<DietPlan>): Promise<ApiResponse<DietPlan>> => {
+    return apiRequest<DietPlan>(`/diet-plans/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+  delete: async (id: string): Promise<ApiResponse<void>> => {
+    return apiRequest<void>(`/diet-plans/${id}`, {
+      method: 'DELETE',
+    });
+  },
+};
+
+// Workout Plans API
+export const workoutPlansApi = {
+  getAll: async (): Promise<ApiResponse<WorkoutPlan[]>> => {
+    return apiRequest<WorkoutPlan[]>('/workout-plans');
+  },
+  getById: async (id: string): Promise<ApiResponse<WorkoutPlan>> => {
+    return apiRequest<WorkoutPlan>(`/workout-plans/${id}`);
+  },
+  create: async (data: Partial<WorkoutPlan>): Promise<ApiResponse<WorkoutPlan>> => {
+    return apiRequest<WorkoutPlan>('/workout-plans', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+  update: async (id: string, data: Partial<WorkoutPlan>): Promise<ApiResponse<WorkoutPlan>> => {
+    return apiRequest<WorkoutPlan>(`/workout-plans/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+  delete: async (id: string): Promise<ApiResponse<void>> => {
+    return apiRequest<void>(`/workout-plans/${id}`, {
+      method: 'DELETE',
+    });
+  },
+};
+
+// Feedback API
+export const feedbackApi = {
+  create: async (data: {
+    trainerId?: string;
+    classId?: string;
+    type: 'TRAINER' | 'CLASS';
+    rating: number;
+    comment?: string;
+    suggestion?: string;
+  }): Promise<ApiResponse<Feedback>> => {
+    return apiRequest<Feedback>('/feedback', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  getAll: async (params?: {
+    type?: 'TRAINER' | 'CLASS';
+    trainerId?: string;
+    traineeId?: string;
+    classId?: string;
+    status?: 'ACTIVE' | 'HIDDEN';
+  }): Promise<ApiResponse<Feedback[]>> => {
+    const searchParams = new URLSearchParams();
+    if (params?.type) searchParams.append('type', params.type);
+    if (params?.trainerId) searchParams.append('trainerId', params.trainerId);
+    if (params?.traineeId) searchParams.append('traineeId', params.traineeId);
+    if (params?.classId) searchParams.append('classId', params.classId);
+    if (params?.status) searchParams.append('status', params.status);
+    const query = searchParams.toString() ? `?${searchParams.toString()}` : '';
+    return apiRequest<Feedback[]>(`/feedback${query}`);
+  },
+
+  getAnalytics: async (): Promise<ApiResponse<FeedbackAnalytics>> => {
+    return apiRequest<FeedbackAnalytics>('/feedback/analytics');
+  },
+
+  updateStatus: async (id: string, status: 'ACTIVE' | 'HIDDEN'): Promise<ApiResponse<Feedback>> => {
+    return apiRequest<Feedback>(`/feedback/${id}/status`, {
+      method: 'PUT',
+      body: JSON.stringify({ status }),
+    });
+  },
+};

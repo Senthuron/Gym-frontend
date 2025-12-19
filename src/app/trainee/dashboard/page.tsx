@@ -1,13 +1,17 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-import { membersApi, sessionsApi, attendanceApi, Member, getUser } from "@/lib/api";
+import { membersApi, sessionsApi, attendanceApi, Member, getUser, workoutPlansApi, feedbackApi } from "@/lib/api";
 import { formatDate } from "@/lib/utils";
 import Link from "next/link";
 import {
   Activity, Calendar, Clock, CreditCard, TrendingUp,
   MapPin, User, ArrowRight, CheckCircle, XCircle, AlertTriangle
 } from "lucide-react";
+
+import { HorizontalCalendar } from "@/components/dashboard/horizontal-calendar";
+import { CalorieTracker } from "@/components/dashboard/calorie-tracker";
+import { FeedbackModal } from "@/components/feedback/FeedbackModal";
 
 export default function TraineeDashboardPage() {
   const [memberProfile, setMemberProfile] = useState<Member | null>(null);
@@ -16,6 +20,9 @@ export default function TraineeDashboardPage() {
   const [loading, setLoading] = useState(true);
   const user = useMemo(() => getUser(), []);
   const [attendancePercent, setAttendancePercent] = useState(0);
+  const [assignedTrainer, setAssignedTrainer] = useState<any>(null);
+  const [trainerFeedbackModal, setTrainerFeedbackModal] = useState(false);
+  const [hasGivenTrainerFeedback, setHasGivenTrainerFeedback] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -26,10 +33,12 @@ export default function TraineeDashboardPage() {
 
       try {
         setLoading(true);
-        const [profileRes, sessionsRes, attendanceRes] = await Promise.all([
+        const [profileRes, sessionsRes, attendanceRes, workoutRes, feedbackRes] = await Promise.all([
           membersApi.getProfile(),
           sessionsApi.getAll(new Date().toISOString()), // Fetch future sessions
-          attendanceApi.getMemberHistory()
+          attendanceApi.getMemberHistory(),
+          workoutPlansApi.getAll(),
+          feedbackApi.getAll({ type: 'TRAINER' })
         ]);
 
         if (profileRes.success && profileRes.data) {
@@ -55,6 +64,21 @@ export default function TraineeDashboardPage() {
           setRecentAttendance(history.slice(0, 3));
         }
 
+        if (workoutRes.success && workoutRes.data && workoutRes.data.length > 0) {
+          const latestPlan = workoutRes.data[0];
+          if (latestPlan.trainerId && typeof latestPlan.trainerId !== 'string') {
+            setAssignedTrainer(latestPlan.trainerId);
+
+            // Check if feedback already given for THIS trainer
+            if (feedbackRes.success && feedbackRes.data) {
+              const feedbackGiven = feedbackRes.data.some((f: any) =>
+                (f.trainerId?._id || f.trainerId) === (latestPlan.trainerId as any)?._id
+              );
+              setHasGivenTrainerFeedback(feedbackGiven);
+            }
+          }
+        }
+
       } catch (error) {
         console.error("Error loading dashboard data:", error);
       } finally {
@@ -64,6 +88,20 @@ export default function TraineeDashboardPage() {
 
     loadData();
   }, [user]);
+
+  const refreshTrainerFeedback = async () => {
+    try {
+      const feedbackRes = await feedbackApi.getAll({ type: 'TRAINER' });
+      if (feedbackRes.success && feedbackRes.data && assignedTrainer) {
+        const feedbackGiven = feedbackRes.data.some((f: any) =>
+          (f.trainerId?._id || f.trainerId) === (assignedTrainer as any)?._id
+        );
+        setHasGivenTrainerFeedback(feedbackGiven);
+      }
+    } catch (err) {
+      console.error("Error refreshing trainer feedback:", err);
+    }
+  };
 
   // Check if membership is expiring in 7 days
   const isExpiringSoon = () => {
@@ -89,6 +127,12 @@ export default function TraineeDashboardPage() {
 
   return (
     <div className="space-y-8 pb-10">
+      {/* Horizontal Calendar */}
+      <HorizontalCalendar />
+
+      {/* Today Calories */}
+      <CalorieTracker />
+
       {/* Welcome Header */}
       <div className="flex flex-col gap-2">
         <h1 className="text-3xl font-bold text-slate-900">
@@ -179,6 +223,37 @@ export default function TraineeDashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* Trainer Section */}
+      {assignedTrainer && (
+        <div className="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-4">
+            <div className="h-16 w-16 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 text-xl font-bold">
+              {assignedTrainer.name?.charAt(0)}
+            </div>
+            <div>
+              <p className="text-sm font-medium text-slate-500">Your Assigned Trainer</p>
+              <h3 className="text-xl font-bold text-slate-900">{assignedTrainer.name}</h3>
+              <p className="text-sm text-slate-500">{assignedTrainer.email}</p>
+            </div>
+          </div>
+          <div className="flex flex-col items-center md:items-end gap-2">
+            {hasGivenTrainerFeedback ? (
+              <span className="text-sm text-slate-400 font-medium italic bg-slate-50 px-4 py-2 rounded-xl border border-slate-100">
+                Feedback Submitted
+              </span>
+            ) : (
+              <button
+                onClick={() => setTrainerFeedbackModal(true)}
+                className="px-6 py-2.5 bg-emerald-600 text-white text-sm font-semibold rounded-xl hover:bg-emerald-700 transition-colors shadow-sm shadow-emerald-200"
+              >
+                Rate Your Trainer
+              </button>
+            )}
+            <p className="text-xs text-slate-400">Your feedback helps us improve!</p>
+          </div>
+        </div>
+      )}
 
       <div className="grid gap-8 lg:grid-cols-2">
         {/* Upcoming Classes */}
@@ -272,6 +347,15 @@ export default function TraineeDashboardPage() {
           </div>
         </div>
       </div>
+
+      <FeedbackModal
+        open={trainerFeedbackModal}
+        onClose={() => setTrainerFeedbackModal(false)}
+        type="TRAINER"
+        trainerId={assignedTrainer?._id}
+        title={`Rate Your Trainer: ${assignedTrainer?.name}`}
+        onSuccess={refreshTrainerFeedback}
+      />
     </div>
   );
 }

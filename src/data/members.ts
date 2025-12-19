@@ -2,13 +2,13 @@ export type Member = {
   id: string;
   name: string;
   avatar?: string;
-  status: "Active" | "Inactive" | "Pending";
+  status: "Active" | "Deactive" | "Pending";
   plan: "Standard" | "Plus" | "Premium";
   visitsThisMonth: number;
   nextBilling: string;
   email: string;
   joinDate: string;
-  activityLevel?: "Active" | "Inactive";
+  activityLevel?: "Active" | "Deactive";
   lastCheckIn?: string;
   assignedTrainer?: string;
   role?: "Member" | "Trainer" | "Admin";
@@ -61,13 +61,13 @@ export const members: Member[] = [
     name: "Diego Alvarez",
     avatar:
       "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=200&q=80",
-    status: "Inactive",
+    status: "Deactive",
     plan: "Standard",
     visitsThisMonth: 3,
     nextBilling: "2025-02-02",
     email: "diego@alvarez.studio",
     joinDate: "2023-12-18",
-    activityLevel: "Inactive",
+    activityLevel: "Deactive",
     lastCheckIn: "2024-12-28",
     assignedTrainer: "Lena K",
     role: "Member",
@@ -86,7 +86,7 @@ export const members: Member[] = [
     nextBilling: "2025-01-20",
     email: "brooklyn.james@outlook.com",
     joinDate: "2025-01-02",
-    activityLevel: "Inactive",
+    activityLevel: "Deactive",
     lastCheckIn: "—",
     assignedTrainer: "Alex J",
     role: "Member",

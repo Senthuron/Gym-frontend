@@ -200,6 +200,7 @@ type FormState = {
   difficultyLevel: string;
   age: string;
   weight: string;
+  gender: "Male" | "Female" | "Others" | "";
 };
 
 export default function RegisterPage() {
@@ -219,6 +220,7 @@ export default function RegisterPage() {
     difficultyLevel: "Beginner",
     age: "",
     weight: "",
+    gender: "",
   });
 
   const [error, setError] = useState<string | null>(null);
@@ -307,6 +309,10 @@ export default function RegisterPage() {
       setError("Passwords do not match.");
       return;
     }
+    if (!form.gender) {
+      setError("Please select your gender.");
+      return;
+    }
     if (!terms) {
       setError("Please accept the terms.");
       return;
@@ -328,7 +334,8 @@ export default function RegisterPage() {
         form.role === 'member' ? form.difficultyLevel : undefined,
         form.role,
         form.role === 'member' && form.age ? parseInt(form.age) : undefined,
-        form.role === 'member' && form.weight ? parseFloat(form.weight) : undefined
+        form.role === 'member' && form.weight ? parseFloat(form.weight) : undefined,
+        form.gender
       );
 
       if (response.success && response.data) {
@@ -428,6 +435,24 @@ export default function RegisterPage() {
                   required
                   hint="Minimum 6 characters"
                 />
+
+                {/* Gender Selection */}
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">
+                    Gender <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    value={form.gender}
+                    onChange={(e) => setForm((f) => ({ ...f, gender: e.target.value as any }))}
+                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                    required
+                  >
+                    <option value="" disabled>Select Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Others">Others</option>
+                  </select>
+                </div>
 
                 {/* Role Selection */}
                 <div>
