@@ -90,7 +90,7 @@ export default function TraineeAttendanceHistory() {
               onChange={(e) => setQuery(e.target.value)}
               className="pl-10 w-full sm:w-[280px] transition-all focus:ring-emerald-500/20"
             />
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <Search className="absolute left-3 top-1/3 -translate-y-1/2 h-4 w-4 text-slate-400" />
           </div>
         </div>
       </div>
@@ -103,8 +103,8 @@ export default function TraineeAttendanceHistory() {
         </div>
         <button
           className={`px-4 py-1.5 text-sm font-medium rounded-full transition-all ${month === "All"
-              ? "bg-emerald-600 text-white shadow-sm"
-              : "bg-white text-slate-600 border border-slate-200 hover:border-emerald-200 hover:text-emerald-700"
+            ? "bg-emerald-600 text-white shadow-sm"
+            : "bg-white text-slate-600 border border-slate-200 hover:border-emerald-200 hover:text-emerald-700"
             }`}
           onClick={() => setMonth("All")}
         >
@@ -119,8 +119,8 @@ export default function TraineeAttendanceHistory() {
             <button
               key={m}
               className={`px-4 py-1.5 text-sm font-medium rounded-full transition-all ${month === m
-                  ? "bg-emerald-600 text-white shadow-sm"
-                  : "bg-white text-slate-600 border border-slate-200 hover:border-emerald-200 hover:text-emerald-700"
+                ? "bg-emerald-600 text-white shadow-sm"
+                : "bg-white text-slate-600 border border-slate-200 hover:border-emerald-200 hover:text-emerald-700"
                 }`}
               onClick={() => setMonth(m)}
             >
@@ -174,8 +174,8 @@ export default function TraineeAttendanceHistory() {
 
                 <div className="mt-4 sm:mt-0 flex items-center justify-between sm:justify-end gap-4 w-full sm:w-auto">
                   <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${item.isPresent
-                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-100'
-                      : 'bg-rose-50 text-rose-700 border border-rose-100'
+                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-100'
+                    : 'bg-rose-50 text-rose-700 border border-rose-100'
                     }`}>
                     {item.isPresent ? 'Present' : 'Absent'}
                   </span>

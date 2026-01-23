@@ -20,6 +20,9 @@ export const metadata: Metadata = {
     "Lightweight gym management UI for admins to manage members, classes, attendance, and settings.",
 };
 
+import { SocketProvider } from "@/lib/SocketContext";
+import { NotificationToast } from "@/components/NotificationToast";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -31,8 +34,12 @@ export default function RootLayout({
         suppressHydrationWarning={true}
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-slate-50 text-slate-900`}
       >
-        {children}
+        <SocketProvider>
+          {children}
+          <NotificationToast />
+        </SocketProvider>
       </body>
     </html>
   );
 }
+

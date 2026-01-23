@@ -127,11 +127,10 @@ export default function TraineeDashboardPage() {
 
   return (
     <div className="space-y-8 pb-10">
+
       {/* Horizontal Calendar */}
       <HorizontalCalendar />
 
-      {/* Today Calories */}
-      <CalorieTracker />
 
       {/* Welcome Header */}
       <div className="flex flex-col gap-2">
@@ -143,6 +142,8 @@ export default function TraineeDashboardPage() {
         </p>
       </div>
 
+      {/* Today Calories */}
+      <CalorieTracker />
       {/* Expiring Warning */}
       {isExpiringSoon() && (
         <div className="rounded-xl bg-amber-50 border border-amber-200 p-4 flex items-start gap-3">

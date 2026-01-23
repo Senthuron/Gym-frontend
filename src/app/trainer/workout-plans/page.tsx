@@ -1,402 +1,159 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Modal } from "@/components/ui/modal";
-import { workoutPlansApi, membersApi, Member, WorkoutPlan } from "@/lib/api";
-import { formatDate } from "@/lib/utils";
-import { Plus, Search, Dumbbell, Trash2, Edit2, Calendar, Clock } from "lucide-react";
+import Image from "next/image";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
-export default function TrainerWorkoutPlansPage() {
-    const [plans, setPlans] = useState<WorkoutPlan[]>([]);
-    const [members, setMembers] = useState<Member[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [search, setSearch] = useState("");
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editingPlan, setEditingPlan] = useState<WorkoutPlan | null>(null);
+const cards = [
+    {
+        title: "Bring Voices Together",
+        desc: "We bring scholars, artists, historians, and cultural practitioners from India and across the world to share perspectives that deepen understanding of tradition, philosophy, and cultural expression.",
+        poster: "/card1.png",
+        video: "/bring-voices.mp4",
+    },
+    {
+        title: "Annual Cultural Mela",
+        poster: "/card2.png",
+        video: "/cultural-mela.mp4",
+    },
+    {
+        title: "Curate Monthly Experiences",
+        poster: "/card3.png",
+        video: "/monthly-experiences.mp4",
+    },
+    {
+        title: "Cultural Challenges",
+        poster: "/card4.png",
+        video: "/cultural-challenges.mp4",
+    },
+];
 
-    const [form, setForm] = useState({
-        title: "",
-        difficulty: "BEGINNER" as WorkoutPlan["difficulty"],
-        traineeId: "",
-        startDate: new Date().toISOString().slice(0, 10),
-        endDate: new Date().toISOString().slice(0, 10),
-        workoutDays: [
-            { dayName: "Monday", focus: "Chest & Triceps", exercises: [{ name: "", sets: "3", reps: "12", restTime: "60s" }] },
-        ],
-    });
-
-    useEffect(() => {
-        loadData();
-    }, []);
-
-    const loadData = async () => {
-        try {
-            setLoading(true);
-            const [plansRes, membersRes] = await Promise.all([
-                workoutPlansApi.getAll(),
-                membersApi.getAll(),
-            ]);
-            if (plansRes.success) setPlans(plansRes.data || []);
-            if (membersRes.success) {
-                setMembers((membersRes.data || []).filter(m => m.role === 'member'));
-            }
-        } catch (error) {
-            console.error("Error loading data:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleSave = async () => {
-        try {
-            if (!form.title || !form.traineeId) {
-                alert("Please fill in all required fields");
-                return;
-            }
-
-            const payload = {
-                ...form,
-                workoutDays: form.workoutDays.filter(d => d.exercises.some(ex => ex.name.trim() !== "")),
-            };
-
-            let res;
-            if (editingPlan) {
-                res = await workoutPlansApi.update(editingPlan._id, payload);
-            } else {
-                res = await workoutPlansApi.create(payload);
-            }
-
-            if (res.success) {
-                setIsModalOpen(false);
-                setEditingPlan(null);
-                resetForm();
-                loadData();
-            }
-        } catch (error) {
-            console.error("Error saving plan:", error);
-        }
-    };
-
-    const handleDelete = async (id: string) => {
-        if (!confirm("Are you sure you want to delete this plan?")) return;
-        try {
-            const res = await workoutPlansApi.delete(id);
-            if (res.success) loadData();
-        } catch (error) {
-            console.error("Error deleting plan:", error);
-        }
-    };
-
-    const resetForm = () => {
-        setForm({
-            title: "",
-            difficulty: "BEGINNER",
-            traineeId: "",
-            startDate: new Date().toISOString().slice(0, 10),
-            endDate: new Date().toISOString().slice(0, 10),
-            workoutDays: [
-                { dayName: "Monday", focus: "Chest & Triceps", exercises: [{ name: "", sets: "3", reps: "12", restTime: "60s" }] },
-            ],
-        });
-    };
-
-    const startEdit = (plan: WorkoutPlan) => {
-        setEditingPlan(plan);
-        setForm({
-            title: plan.title,
-            difficulty: plan.difficulty,
-            traineeId: typeof plan.traineeId === 'string' ? plan.traineeId : plan.traineeId._id,
-            startDate: new Date(plan.startDate).toISOString().slice(0, 10),
-            endDate: new Date(plan.endDate).toISOString().slice(0, 10),
-            workoutDays: plan.workoutDays.length > 0 ? plan.workoutDays : [
-                { dayName: "Monday", focus: "Chest & Triceps", exercises: [{ name: "", sets: "3", reps: "12", restTime: "60s" }] },
-            ],
-        });
-        setIsModalOpen(true);
-    };
-
-    const filteredPlans = plans.filter(p =>
-        p.title.toLowerCase().includes(search.toLowerCase()) ||
-        (typeof p.traineeId !== 'string' && p.traineeId.name.toLowerCase().includes(search.toLowerCase()))
-    );
+export default function HowWeBringCultureToLife() {
+    const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
     return (
-        <div className="space-y-6">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                    <h1 className="text-2xl font-bold text-slate-900">Workout Plan Management</h1>
-                    <p className="text-slate-500 text-sm">Design and assign workout routines to your trainees.</p>
+        <section className="relative w-full bg-[#efb896] overflow-hidden">
+            <div className="relative z-10 max-w-7xl mx-auto px-6 pt-16 md:pt-24 pb-32 md:pb-48 text-center">
+
+                <motion.h2
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    className="mb-6 text-3xl md:text-5xl font-serif text-[#5d1f08]"
+                >
+                    How We Bring <br className="hidden md:block" /> Culture To Life
+                </motion.h2>
+
+                <motion.p
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.1 }}
+                    className="mx-auto mb-10 md:mb-16 max-w-3xl text-sm md:text-base text-[#5d1f08]/80 leading-relaxed font-light"
+                >
+                    We curate conversations and experiences that explore India’s rich cultural landscape
+                    through voices that carry knowledge, practice, and lived wisdom.
+                </motion.p>
+
+                {/* CARDS CONTAINER */}
+                <div
+                    className="flex flex-row gap-4 mb-12 md:mb-16 h-[550px] md:h-[450px] lg:h-[500px] overflow-x-auto md:overflow-visible snap-x snap-mandatory no-scrollbar items-stretch"
+                    onMouseLeave={() => setHoveredIndex(null)}
+                >
+                    {cards.map((card, index) => (
+                        <motion.div
+                            key={index}
+                            onMouseEnter={() => setHoveredIndex(index)}
+                            animate={{
+                                flex: typeof window !== 'undefined' && window.innerWidth < 768
+                                    ? "0 0 85%"
+                                    : (hoveredIndex === index ? 3 : 1)
+                            }}
+                            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                            className="relative rounded-2xl md:rounded-3xl overflow-hidden group cursor-pointer shadow-xl snap-center shrink-0 md:shrink md:flex-1"
+                        >
+                            {/* VIDEO LAYER */}
+                            <video
+                                src={card.video}
+                                muted
+                                loop
+                                playsInline
+                                autoPlay
+                                className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${hoveredIndex === index ? "opacity-100" : "opacity-0 md:opacity-0"
+                                    }`}
+                            />
+
+                            {/* POSTER LAYER */}
+                            <Image
+                                src={card.poster}
+                                alt={card.title}
+                                fill
+                                sizes="(max-width: 768px) 100vw, 25vw"
+                                className={`object-cover transition-opacity duration-700 ${hoveredIndex === index ? "md:opacity-0" : "opacity-100"
+                                    }`}
+                            />
+
+                            {/* GRADIENTS: Top for title, bottom for description */}
+                            <div className="absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-black/60 to-transparent opacity-80" />
+                            <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-90" />
+
+                            {/* TOP CONTENT: TITLE ONLY */}
+                            <div className="absolute top-6 left-6 right-6 md:top-8 md:left-8 md:right-8 z-20">
+                                <motion.h3
+                                    layout
+                                    className="font-serif text-white text-lg md:text-xl lg:text-2xl leading-tight"
+                                >
+                                    {card.title}
+                                </motion.h3>
+                            </div>
+
+                            {/* BOTTOM CONTENT: DESCRIPTION ONLY */}
+                            <div className="absolute bottom-6 left-6 right-6 md:bottom-8 md:left-8 md:right-8 z-20">
+                                <AnimatePresence>
+                                    {hoveredIndex === index && card.desc && (
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: 20 }}
+                                            transition={{ duration: 0.4 }}
+                                            className="hidden md:block overflow-hidden"
+                                        >
+                                            <p className="text-sm lg:text-base text-white/90 leading-relaxed bg-black/20 backdrop-blur-md p-5 rounded-2xl border border-white/10">
+                                                {card.desc}
+                                            </p>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+
+                                {/* Mobile Fallback: Simple text at bottom */}
+                                <p className="md:hidden text-xs text-white/80 line-clamp-3">
+                                    {card.desc}
+                                </p>
+                            </div>
+                        </motion.div>
+                    ))}
                 </div>
-                <Button onClick={() => { resetForm(); setEditingPlan(null); setIsModalOpen(true); }}>
-                    <Plus size={18} className="mr-2" /> Create New Plan
-                </Button>
+
+                <button className="rounded-lg bg-[#95170B] px-8 py-3 text-sm font-medium text-white shadow-lg transition hover:bg-[#5d1f08] active:scale-95">
+                    Know More
+                </button>
             </div>
 
-            <Card className="p-4">
-                <div className="relative max-w-md">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                    <Input
-                        placeholder="Search plans or trainees..."
-                        className="pl-10"
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
+            {/* SVG WAVE */}
+            <div className="absolute bottom-0 left-0 w-full pointer-events-none leading-[0]">
+                <svg viewBox="0 0 1440 320" preserveAspectRatio="none" className="w-full h-[120px] md:h-[240px]">
+                    <path
+                        fill="#fdfaf1"
+                        d="M0,160 C320,300 1120,50 1440,200 L1440,320 L0,320 Z"
                     />
-                </div>
-            </Card>
-
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {loading ? (
-                    <div className="col-span-full text-center py-12 text-slate-500">Loading plans...</div>
-                ) : filteredPlans.length === 0 ? (
-                    <div className="col-span-full text-center py-12 text-slate-500">No workout plans found.</div>
-                ) : (
-                    filteredPlans.map((plan) => (
-                        <Card key={plan._id} className="overflow-hidden hover:shadow-md transition-shadow">
-                            <div className="p-5 space-y-4">
-                                <div className="flex justify-between items-start">
-                                    <div className="space-y-1">
-                                        <span className="px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-[10px] font-bold uppercase tracking-wider">
-                                            {plan.difficulty}
-                                        </span>
-                                        <h3 className="font-bold text-slate-900 line-clamp-1">{plan.title}</h3>
-                                    </div>
-                                    <div className="flex gap-1">
-                                        <button onClick={() => startEdit(plan)} className="p-2 text-slate-400 hover:text-blue-600 transition-colors">
-                                            <Edit2 size={16} />
-                                        </button>
-                                        <button onClick={() => handleDelete(plan._id)} className="p-2 text-slate-400 hover:text-red-600 transition-colors">
-                                            <Trash2 size={16} />
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div className="space-y-2 text-sm">
-                                    <div className="flex items-center gap-2 text-slate-600">
-                                        <Dumbbell size={14} />
-                                        <span>Trainee: <span className="font-semibold text-slate-900">{typeof plan.traineeId === 'string' ? plan.traineeId : plan.traineeId.name}</span></span>
-                                    </div>
-                                    <div className="flex items-center gap-2 text-slate-600">
-                                        <Calendar size={14} />
-                                        <span>{formatDate(plan.startDate)} - {formatDate(plan.endDate)}</span>
-                                    </div>
-                                </div>
-
-                                <div className="pt-2 border-t border-slate-100 flex justify-between items-center">
-                                    <span className="text-xs text-slate-400">{plan.workoutDays.length} days scheduled</span>
-                                    <Button variant="ghost" size="sm" onClick={() => startEdit(plan)}>View Details</Button>
-                                </div>
-                            </div>
-                        </Card>
-                    ))
-                )}
+                </svg>
             </div>
 
-            <Modal
-                open={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                title={editingPlan ? "Edit Workout Plan" : "Create Workout Plan"}
-                className="max-w-4xl"
-            >
-                <div className="space-y-6 max-h-[75vh] overflow-y-auto pr-2">
-                    <div className="grid gap-4 md:grid-cols-2">
-                        <Input
-                            label="Plan Title"
-                            placeholder="e.g. Hypertrophy Phase 1"
-                            value={form.title}
-                            onChange={(e) => setForm(f => ({ ...f, title: e.target.value }))}
-                            required
-                        />
-                        <div>
-                            <label className="block text-sm font-semibold text-slate-700 mb-2">Difficulty</label>
-                            <select
-                                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
-                                value={form.difficulty}
-                                onChange={(e) => setForm(f => ({ ...f, difficulty: e.target.value as any }))}
-                            >
-                                <option value="BEGINNER">Beginner</option>
-                                <option value="INTERMEDIATE">Intermediate</option>
-                                <option value="ADVANCED">Advanced</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label className="block text-sm font-semibold text-slate-700 mb-2">Assign Trainee</label>
-                            <select
-                                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
-                                value={form.traineeId}
-                                onChange={(e) => setForm(f => ({ ...f, traineeId: e.target.value }))}
-                                required
-                            >
-                                <option value="">Select a trainee</option>
-                                {members.map(m => (
-                                    <option key={m._id} value={m.user && typeof m.user !== 'string' ? m.user._id : (m as any).user}>{m.name}</option>
-                                ))}
-                            </select>
-                        </div>
-                        <div className="grid grid-cols-2 gap-2">
-                            <Input
-                                label="Start Date"
-                                type="date"
-                                value={form.startDate}
-                                onChange={(e) => setForm(f => ({ ...f, startDate: e.target.value }))}
-                            />
-                            <Input
-                                label="End Date"
-                                type="date"
-                                value={form.endDate}
-                                onChange={(e) => setForm(f => ({ ...f, endDate: e.target.value }))}
-                            />
-                        </div>
-                    </div>
-
-                    <div className="space-y-6">
-                        <div className="flex items-center justify-between border-b pb-2">
-                            <h3 className="font-bold text-slate-900">Workout Schedule</h3>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setForm(f => ({
-                                    ...f,
-                                    workoutDays: [...f.workoutDays, { dayName: "New Day", focus: "", exercises: [{ name: "", sets: "3", reps: "12", restTime: "60s" }] }]
-                                }))}
-                            >
-                                + Add Day
-                            </Button>
-                        </div>
-
-                        {form.workoutDays.map((day, dayIdx) => (
-                            <div key={dayIdx} className="p-5 border border-slate-200 rounded-2xl space-y-4 bg-slate-50/30">
-                                <div className="flex gap-4 items-start">
-                                    <div className="flex-1 grid gap-4 md:grid-cols-2">
-                                        <Input
-                                            placeholder="Day Name (e.g. Monday)"
-                                            value={day.dayName}
-                                            onChange={(e) => {
-                                                const newDays = [...form.workoutDays];
-                                                newDays[dayIdx].dayName = e.target.value;
-                                                setForm(f => ({ ...f, workoutDays: newDays }));
-                                            }}
-                                        />
-                                        <Input
-                                            placeholder="Focus (e.g. Chest & Back)"
-                                            value={day.focus}
-                                            onChange={(e) => {
-                                                const newDays = [...form.workoutDays];
-                                                newDays[dayIdx].focus = e.target.value;
-                                                setForm(f => ({ ...f, workoutDays: newDays }));
-                                            }}
-                                        />
-                                    </div>
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        className="text-red-500"
-                                        onClick={() => {
-                                            const newDays = form.workoutDays.filter((_, i) => i !== dayIdx);
-                                            setForm(f => ({ ...f, workoutDays: newDays }));
-                                        }}
-                                    >
-                                        Remove Day
-                                    </Button>
-                                </div>
-
-                                <div className="space-y-3 pl-4 border-l-2 border-slate-200">
-                                    <div className="grid grid-cols-12 gap-2 text-xs font-bold text-slate-500 uppercase px-2">
-                                        <div className="col-span-5">Exercise</div>
-                                        <div className="col-span-2">Sets</div>
-                                        <div className="col-span-2">Reps</div>
-                                        <div className="col-span-2">Rest</div>
-                                        <div className="col-span-1"></div>
-                                    </div>
-                                    {day.exercises.map((ex, exIdx) => (
-                                        <div key={exIdx} className="grid grid-cols-12 gap-2 items-center">
-                                            <div className="col-span-5">
-                                                <Input
-                                                    placeholder="Exercise name"
-                                                    className="bg-white"
-                                                    value={ex.name}
-                                                    onChange={(e) => {
-                                                        const newDays = [...form.workoutDays];
-                                                        newDays[dayIdx].exercises[exIdx].name = e.target.value;
-                                                        setForm(f => ({ ...f, workoutDays: newDays }));
-                                                    }}
-                                                />
-                                            </div>
-                                            <div className="col-span-2">
-                                                <Input
-                                                    placeholder="Sets"
-                                                    className="bg-white"
-                                                    value={ex.sets}
-                                                    onChange={(e) => {
-                                                        const newDays = [...form.workoutDays];
-                                                        newDays[dayIdx].exercises[exIdx].sets = e.target.value;
-                                                        setForm(f => ({ ...f, workoutDays: newDays }));
-                                                    }}
-                                                />
-                                            </div>
-                                            <div className="col-span-2">
-                                                <Input
-                                                    placeholder="Reps"
-                                                    className="bg-white"
-                                                    value={ex.reps}
-                                                    onChange={(e) => {
-                                                        const newDays = [...form.workoutDays];
-                                                        newDays[dayIdx].exercises[exIdx].reps = e.target.value;
-                                                        setForm(f => ({ ...f, workoutDays: newDays }));
-                                                    }}
-                                                />
-                                            </div>
-                                            <div className="col-span-2">
-                                                <Input
-                                                    placeholder="Rest"
-                                                    className="bg-white"
-                                                    value={ex.restTime}
-                                                    onChange={(e) => {
-                                                        const newDays = [...form.workoutDays];
-                                                        newDays[dayIdx].exercises[exIdx].restTime = e.target.value;
-                                                        setForm(f => ({ ...f, workoutDays: newDays }));
-                                                    }}
-                                                />
-                                            </div>
-                                            <div className="col-span-1">
-                                                <button
-                                                    onClick={() => {
-                                                        const newDays = [...form.workoutDays];
-                                                        newDays[dayIdx].exercises = newDays[dayIdx].exercises.filter((_, i) => i !== exIdx);
-                                                        setForm(f => ({ ...f, workoutDays: newDays }));
-                                                    }}
-                                                    className="text-slate-400 hover:text-red-500 transition-colors"
-                                                >
-                                                    <Trash2 size={16} />
-                                                </button>
-                                            </div>
-                                        </div>
-                                    ))}
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        className="text-blue-600 hover:bg-blue-50"
-                                        onClick={() => {
-                                            const newDays = [...form.workoutDays];
-                                            newDays[dayIdx].exercises.push({ name: "", sets: "3", reps: "12", restTime: "60s" });
-                                            setForm(f => ({ ...f, workoutDays: newDays }));
-                                        }}
-                                    >
-                                        + Add Exercise
-                                    </Button>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-
-                    <div className="flex justify-end gap-3 pt-4 border-t">
-                        <Button variant="ghost" onClick={() => setIsModalOpen(false)}>Cancel</Button>
-                        <Button onClick={handleSave}>{editingPlan ? "Update Plan" : "Create & Assign Plan"}</Button>
-                    </div>
-                </div>
-            </Modal>
-        </div>
+            <style jsx>{`
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      `}</style>
+        </section>
     );
 }
+

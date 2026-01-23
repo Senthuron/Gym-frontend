@@ -70,7 +70,7 @@ export default function GuidePage() {
     ];
 
     return (
-        <div className="max-w-5xl mx-auto space-y-8 pb-12">
+        <div className="w-full mx-auto space-y-8 pb-12">
             {/* Header */}
             <header className="text-center space-y-4">
                 <div className="inline-flex items-center justify-center p-3 bg-blue-100 rounded-2xl mb-2">

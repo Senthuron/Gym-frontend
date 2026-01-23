@@ -25,18 +25,12 @@ export default function AttendancePage() {
   }, [sessions]);
 
   const pastSessions = useMemo(() => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return sessions.filter(s => {
-      const d = new Date(s.date);
-      d.setHours(0, 0, 0, 0);
-      return d.getTime() < today.getTime();
-    }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  }, [sessions]);
+    return [];
+  }, []);
 
   const selectedSession = useMemo(
     () => sessions.find((s) => s._id === selectedSessionId) || todaySessions[0],
-    [sessions, selectedSessionId, todaySessions]
+    [selectedSessionId, todaySessions]
   );
 
   useEffect(() => {
@@ -175,25 +169,13 @@ export default function AttendancePage() {
             <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
               <div>
                 <p className="text-sm font-semibold text-blue-700">
-                  {selectedSession && !todaySessions.find(s => s._id === selectedSession._id)
-                    ? "Viewing Past Record"
-                    : "Select Today's Class"}
+                  Select Today's Class
                 </p>
                 <p className="text-sm text-slate-500">
-                  {selectedSession && !todaySessions.find(s => s._id === selectedSession._id)
-                    ? `Viewing attendance for ${new Date(selectedSession.date).toLocaleDateString()}.`
-                    : "Mark present members and see live stats."}
+                  Mark present members and see live stats.
                 </p>
               </div>
               <div className="flex items-center gap-2">
-                {selectedSession && !todaySessions.find(s => s._id === selectedSession._id) && (
-                  <button
-                    onClick={() => setSelectedSessionId(todaySessions[0]?._id || "")}
-                    className="text-xs font-semibold text-blue-600 hover:text-blue-800 transition-colors"
-                  >
-                    Back to Today
-                  </button>
-                )}
                 <select
                   value={selectedSession?._id || ""}
                   onChange={(e) => setSelectedSessionId(e.target.value)}
@@ -207,11 +189,6 @@ export default function AttendancePage() {
                       {cls.name} — {cls.startTime}
                     </option>
                   ))}
-                  {selectedSession && !todaySessions.find(s => s._id === selectedSession._id) && (
-                    <option key={selectedSession._id} value={selectedSession._id}>
-                      {selectedSession.name} — {new Date(selectedSession.date).toLocaleDateString()}
-                    </option>
-                  )}
                 </select>
               </div>
             </div>
@@ -336,59 +313,6 @@ export default function AttendancePage() {
         </div>
       </Card>
 
-      <div className="mt-8">
-        <h3 className="text-lg font-semibold text-slate-900 mb-4">Attendance History</h3>
-        <Card>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead>
-                <tr className="border-b border-slate-100 text-slate-500">
-                  <th className="pb-3 pl-4 font-medium">Class Name</th>
-                  <th className="pb-3 font-medium">Date</th>
-                  <th className="pb-3 font-medium">Coach</th>
-                  <th className="pb-3 font-medium">Status</th>
-                  <th className="pb-3 pr-4 text-right font-medium">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-50">
-                {pastSessions.length === 0 ? (
-                  <tr>
-                    <td colSpan={5} className="py-8 text-center text-slate-500">
-                      No past attendance records found.
-                    </td>
-                  </tr>
-                ) : (
-                  pastSessions.map((s) => (
-                    <tr key={s._id} className="group hover:bg-slate-50/50 transition-colors">
-                      <td className="py-4 pl-4 font-semibold text-slate-900">{s.name}</td>
-                      <td className="py-4 text-slate-600">{new Date(s.date).toLocaleDateString()}</td>
-                      <td className="py-4 text-slate-600">
-                        {s.trainer && typeof s.trainer === 'object' ? (s.trainer as any).name : s.trainer || "Unknown"}
-                      </td>
-                      <td className="py-4">
-                        <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${s.status === 'Completed' ? 'bg-emerald-50 text-emerald-700' :
-                          s.status === 'Cancelled' ? 'bg-rose-50 text-rose-700' :
-                            'bg-blue-50 text-blue-700'
-                          }`}>
-                          {s.status}
-                        </span>
-                      </td>
-                      <td className="py-4 pr-4 text-right">
-                        <button
-                          onClick={() => setSelectedSessionId(s._id)}
-                          className="text-blue-600 hover:text-blue-800 font-medium transition-colors"
-                        >
-                          View Details
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </Card>
-      </div>
     </div>
   );
 }

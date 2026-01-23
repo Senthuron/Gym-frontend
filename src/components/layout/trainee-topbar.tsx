@@ -1,20 +1,25 @@
 "use client";
 
 import { Input } from "@/components/ui/input";
-import { membersApi, Member, getUser } from "@/lib/api";
-import { useEffect, useState, useMemo } from "react";
+import { membersApi, Member, getUser, LoginResponse } from "@/lib/api";
+import { useEffect, useState } from "react";
 
 export function TraineeTopbar({
   onToggleSidebar,
 }: {
   onToggleSidebar: () => void;
 }) {
-  const user = useMemo(() => getUser(), []);
+  const [user, setUserState] = useState<LoginResponse['user'] | null>(null);
   const [memberProfile, setMemberProfile] = useState<Member | null>(null);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+    const currentUser = getUser();
+    setUserState(currentUser);
+
     const loadProfile = async () => {
-      if (!user) return;
+      if (!currentUser) return;
 
       try {
         const response = await membersApi.getProfile();
@@ -27,12 +32,12 @@ export function TraineeTopbar({
     };
 
     loadProfile();
-  }, [user]);
+  }, []);
 
-  const displayName = memberProfile?.name || user?.name || "Trainee";
+  const displayName = mounted ? (memberProfile?.name || user?.name || "Trainee") : "Trainee";
   const initials = displayName
     .split(" ")
-    .map((n) => n[0])
+    .map((n: string) => n[0])
     .join("")
     .toUpperCase()
     .slice(0, 2);

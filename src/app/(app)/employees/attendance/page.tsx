@@ -78,6 +78,7 @@ export default function EmployeeAttendancePage() {
                     });
                 }
 
+                console.log("Initial attendance set:", initialAttendance);
                 setAttendance(initialAttendance);
             }
         } catch (error) {
@@ -106,6 +107,7 @@ export default function EmployeeAttendancePage() {
                 counts[val.status as keyof typeof counts]++;
             }
         });
+        console.log("Stats calculated:", counts);
         return counts;
     }, [attendance]);
 
@@ -137,11 +139,6 @@ export default function EmployeeAttendancePage() {
         }
     };
 
-    const changeDate = (days: number) => {
-        const d = new Date(date);
-        d.setDate(d.getDate() + days);
-        setDate(d.toISOString().slice(0, 10));
-    };
 
     return (
         <div className="space-y-6 pb-10 animate-in fade-in duration-500">
@@ -158,22 +155,13 @@ export default function EmployeeAttendancePage() {
                     <p className="text-sm text-slate-500 mt-1">Mark and manage daily attendance for all gym employees.</p>
                 </div>
                 <div className="flex items-center gap-3">
-                    <div className="flex items-center bg-white border border-slate-200 rounded-xl p-1 shadow-sm">
-                        <Button variant="ghost" size="sm" onClick={() => changeDate(-1)} className="h-8 w-8 rounded-lg p-0">
-                            <ChevronLeft className="w-4 h-4" />
-                        </Button>
+                    <div className="flex items-center bg-white border border-slate-200 rounded-xl p-3 shadow-sm">
                         <div className="px-3 flex items-center gap-2">
                             <CalendarIcon className="w-4 h-4 text-slate-400" />
-                            <input
-                                type="date"
-                                value={date}
-                                onChange={(e) => setDate(e.target.value)}
-                                className="text-sm font-bold text-slate-700 outline-none bg-transparent"
-                            />
+                            <span className="text-sm font-bold text-slate-700">
+                                {formatDate(date)}
+                            </span>
                         </div>
-                        <Button variant="ghost" size="sm" onClick={() => changeDate(1)} className="h-8 w-8 rounded-lg p-0">
-                            <ChevronRight className="w-4 h-4" />
-                        </Button>
                     </div>
                     <Button
                         onClick={handleSave}
@@ -242,7 +230,7 @@ export default function EmployeeAttendancePage() {
                         <p className="text-xs text-slate-500 font-medium">{formatDate(date)}</p>
                     </div>
                     <div className="relative group">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
+                        <Search className="absolute left-3 top-1/3 items-center justify-center -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
                         <Input
                             placeholder="Search staff..."
                             value={query}

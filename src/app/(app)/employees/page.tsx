@@ -55,6 +55,7 @@ export default function EmployeesPage() {
         email: "",
         phone: "",
         role: "Trainer" as Employee["role"],
+        gender: "Male" as Employee["gender"],
         salaryType: "Monthly" as Employee["salaryType"],
         baseSalary: 0,
         status: "Active" as Employee["status"],
@@ -108,6 +109,7 @@ export default function EmployeesPage() {
             email: "",
             phone: "",
             role: "Trainer",
+            gender: "Male",
             salaryType: "Monthly",
             baseSalary: 0,
             status: "Active",
@@ -154,6 +156,7 @@ export default function EmployeesPage() {
             email: emp.email,
             phone: emp.phone,
             role: emp.role,
+            gender: emp.gender || "Male",
             salaryType: emp.salaryType,
             baseSalary: emp.baseSalary,
             status: emp.status,
@@ -193,15 +196,17 @@ export default function EmployeesPage() {
                     </h2>
                     <p className="text-sm text-slate-500 mt-1">Manage, track and organize your gym staff and trainers.</p>
                 </div>
-                <div className="flex items-center gap-3">
-                    <Button
-                        onClick={() => setOpenCreate(true)}
-                        className="bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-100 transition-all hover:scale-[1.02] active:scale-[0.98]"
-                    >
+
+                <Button
+                    onClick={() => setOpenCreate(true)}
+                    className="bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-100 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                >
+                    <div className="flex items-center gap-2">
                         <UserPlus className="w-4 h-4 mr-2" />
-                        Add New Employee
-                    </Button>
-                </div>
+                        <span>Add New Employee</span>
+                    </div>
+                </Button>
+
             </div>
 
             {/* Stats Section */}
@@ -252,7 +257,7 @@ export default function EmployeesPage() {
 
                     <div className="flex flex-wrap items-center gap-3">
                         <div className="relative group">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
+                            <Search className="absolute left-3 top-1/3 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
                             <Input
                                 placeholder="Search staff..."
                                 value={query}
@@ -443,20 +448,32 @@ export default function EmployeesPage() {
                                 />
                             </div>
                             <div className="space-y-1.5">
-                                <label className="text-xs font-bold text-slate-700 uppercase ml-1">Designated Role</label>
-                                <div className="relative">
-                                    <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                                    <select
-                                        className="w-full text-sm border border-slate-200 rounded-lg pl-10 pr-3 py-2 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-slate-50/50 transition-all appearance-none"
-                                        value={form.role}
-                                        onChange={(e) => setForm((f) => ({ ...f, role: e.target.value as Employee["role"] }))}
-                                    >
-                                        <option value="Trainer">Trainer</option>
-                                        <option value="Reception">Reception</option>
-                                        <option value="Manager">Manager</option>
-                                        <option value="Cleaner">Cleaner</option>
-                                    </select>
-                                </div>
+                                <label className="text-xs font-bold text-slate-700 uppercase ml-1">Gender</label>
+                                <select
+                                    className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-slate-50/50 transition-all"
+                                    value={form.gender}
+                                    onChange={(e) => setForm((f) => ({ ...f, gender: e.target.value as Employee["gender"] }))}
+                                >
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Others">Others</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div className="space-y-1.5">
+                            <label className="text-xs font-bold text-slate-700 uppercase ml-1">Designated Role</label>
+                            <div className="relative">
+                                <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                <select
+                                    className="w-full text-sm border border-slate-200 rounded-lg pl-10 pr-3 py-2 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-slate-50/50 transition-all appearance-none"
+                                    value={form.role}
+                                    onChange={(e) => setForm((f) => ({ ...f, role: e.target.value as Employee["role"] }))}
+                                >
+                                    <option value="Trainer">Trainer</option>
+                                    <option value="Reception">Reception</option>
+                                    <option value="Manager">Manager</option>
+                                    <option value="Cleaner">Cleaner</option>
+                                </select>
                             </div>
                         </div>
                     </div>

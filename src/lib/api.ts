@@ -123,6 +123,7 @@ export interface Employee {
   employeeId: string;
   name: string;
   role: 'Trainer' | 'Reception' | 'Manager' | 'Cleaner';
+  gender: 'Male' | 'Female' | 'Others';
   phone: string;
   email: string;
   joiningDate: string;

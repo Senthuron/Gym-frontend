@@ -141,13 +141,14 @@ export default function TrainerDietPlansPage() {
                     <p className="text-slate-500 text-sm">Create and assign nutrition plans to your trainees.</p>
                 </div>
                 <Button onClick={() => { resetForm(); setEditingPlan(null); setIsModalOpen(true); }}>
-                    <Plus size={18} className="mr-2" /> Create New Plan
+                    <Plus size={18} className="mr-2" />
+                    <span>Create New Plan </span>
                 </Button>
             </div>
 
             <Card className="p-4">
                 <div className="relative max-w-md">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                    <Search className="absolute left-3 top-1/3 -translate-y-1/2 text-slate-400" size={18} />
                     <Input
                         placeholder="Search plans or trainees..."
                         className="pl-10"

@@ -158,15 +158,18 @@ export default function ClassesPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto p-4 space-y-6">
+    <div className="w-full mx-auto p-4 space-y-8">
       {/* Header */}
       <header className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-2">
           <Calendar className="h-6 w-6 text-slate-600" />
           <h1 className="text-2xl font-bold text-slate-900">Classes</h1>
         </div>
-        <Button onClick={() => setOpenModal(true)} className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg hover:shadow-2xl transition-shadow">
-          <Plus className="h-4 w-4" /> New class
+        <Button onClick={() => setOpenModal(true)} className="bg-emerald-600 text-white">
+          <div className="flex items-center gap-2">
+            <Plus className="h-4 w-4" />
+            <span>New class</span>
+          </div>
         </Button>
       </header>
 
@@ -179,7 +182,7 @@ export default function ClassesPage() {
           leading="🔎"
           className="md:max-w-xs"
         />
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-nowrap gap-2">
           {(["All", "Scheduled", "Cancelled", "Completed"] as const).map((item) => (
             <Button
               key={item}
